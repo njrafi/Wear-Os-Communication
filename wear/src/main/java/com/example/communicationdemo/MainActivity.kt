@@ -19,6 +19,7 @@ class MainActivity : WearableActivity() {
         binding.button.setOnClickListener{
             Log.i("WearableMainActivity", "Send Message Button Clicked")
             hudaiVariable += 1
+            binding.text.text = hudaiVariable.toString()
             MessageSender.sendMessage(messagePath,"Message from Wearable $hudaiVariable",this)
         }
 
