@@ -12,7 +12,7 @@ import kotlinx.android.synthetic.main.activity_main.*
 
 class MainActivity : AppCompatActivity() {
 
-    private val messageBroadcaseReceiver = object : BroadcastReceiver() {
+    private val messageBroadcastReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
             Log.i("Main Activity", "Broadcast Received")
             val message = intent?.getStringExtra(MessageConstants.message)
@@ -33,13 +33,13 @@ class MainActivity : AppCompatActivity() {
         super.onStart()
         val intentFilter = IntentFilter(MessageConstants.intentName)
         LocalBroadcastManager.getInstance(this)
-            .registerReceiver(messageBroadcaseReceiver, intentFilter)
+            .registerReceiver(messageBroadcastReceiver, intentFilter)
 
     }
 
     override fun onStop() {
         super.onStop()
         LocalBroadcastManager.getInstance(this)
-            .unregisterReceiver(messageBroadcaseReceiver)
+            .unregisterReceiver(messageBroadcastReceiver)
     }
 }

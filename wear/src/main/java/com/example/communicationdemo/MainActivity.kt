@@ -13,14 +13,14 @@ class MainActivity : WearableActivity() {
         val binding: ActivityMainBinding = DataBindingUtil.setContentView(
             this, R.layout.activity_main)
 
-        var hudaiVariable = 0
+        var dummyNumber = 0
         val messagePath = "/message_path"
 
         binding.button.setOnClickListener{
             Log.i("WearableMainActivity", "Send Message Button Clicked")
-            hudaiVariable += 1
-            binding.text.text = hudaiVariable.toString()
-            MessageSender.sendMessage(messagePath,"Message from Wearable $hudaiVariable",this)
+            dummyNumber += 1
+            binding.text.text = dummyNumber.toString()
+            MessageSender.sendMessage(messagePath,"Message from Wearable $dummyNumber",this)
         }
 
         // Enables Always-on
