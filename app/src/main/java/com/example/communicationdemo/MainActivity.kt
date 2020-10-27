@@ -16,7 +16,7 @@ import kotlinx.android.synthetic.main.activity_main.*
 
 class MainActivity : AppCompatActivity() {
 
-    private val CameraRequestCode = 0
+    private val cameraRequestCode = 0
     private var lastTakenPhoto: Bitmap? = null
 
     private val messageBroadcastReceiver = object : BroadcastReceiver() {
@@ -37,7 +37,7 @@ class MainActivity : AppCompatActivity() {
 
         binding.takePhotoButton.setOnClickListener {
             val takePictureIntent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
-            startActivityForResult(takePictureIntent, CameraRequestCode)
+            startActivityForResult(takePictureIntent, cameraRequestCode)
         }
 
         binding.sendPhotoButton.setOnClickListener{
@@ -48,7 +48,7 @@ class MainActivity : AppCompatActivity() {
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if (resultCode == RESULT_CANCELED) return
-        if (requestCode == CameraRequestCode) {
+        if (requestCode == cameraRequestCode) {
             if (resultCode == RESULT_OK && data != null) {
                 val bitmapImage = data.extras?.get("data") as Bitmap?
                 lastTakenPhoto = bitmapImage

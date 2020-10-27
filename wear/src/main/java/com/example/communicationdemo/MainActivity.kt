@@ -1,12 +1,16 @@
 package com.example.communicationdemo
 
+import android.content.BroadcastReceiver
+import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
 import android.graphics.BitmapFactory
 import android.net.Uri
 import android.os.Bundle
 import android.support.wearable.activity.WearableActivity
 import android.util.Log
-import android.widget.Toast
 import androidx.databinding.DataBindingUtil
+import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.example.communicationdemo.databinding.ActivityMainBinding
 import com.google.android.gms.wearable.ChannelClient
 import com.google.android.gms.wearable.ChannelClient.ChannelCallback
@@ -17,14 +21,24 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import java.io.File
-import java.io.FileInputStream
-import java.io.IOException
-import java.io.InputStream
-import java.nio.charset.StandardCharsets
 
 class MainActivity : WearableActivity() {
     private val tag = "MainActivity"
     private val imageFileName = "ImageFromMobile.png"
+
+
+    private val imageBroadcastReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context?, intent: Intent?) {
+            Log.i("Main Activity", "Broadcast Received")
+            val imagePathUri = intent?.getStringExtra(ImageMessageConstants.imagePathUri)
+            val image = BitmapFactory.decodeFile(imagePathUri)
+            if (image != null) {
+                imageView.setImageBitmap(image)
+            }
+        }
+
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val binding: com.example.communicationdemo.databinding.ActivityMainBinding =
@@ -38,7 +52,7 @@ class MainActivity : WearableActivity() {
         binding.button.setOnClickListener {
             Log.i("WearableMainActivity", "Send Message Button Clicked")
             dummyNumber += 1
-            binding.text.text = dummyNumber.toString()
+            binding.dummyNumberTextView.text = dummyNumber.toString()
             MessageSender.sendMessage(messagePath, "Message from Wearable $dummyNumber", this)
         }
 
@@ -46,46 +60,23 @@ class MainActivity : WearableActivity() {
         setAmbientEnabled()
     }
 
-    val job = Job()
-    val backgroundScope = CoroutineScope(Dispatchers.IO + job)
-
     override fun onResume() {
         super.onResume()
+        ImageReceiver.registerChannel(this)
+    }
 
-        Wearable.getChannelClient(applicationContext)
-            .registerChannelCallback(object : ChannelCallback() {
-                override fun onChannelOpened(channel: ChannelClient.Channel) {
-                    super.onChannelOpened(channel)
-                    Log.d(tag, "onChannelOpened")
-                    backgroundScope.launch {
-                        var outFile: File? = null
-                        outFile = File(applicationContext.getFileStreamPath(imageFileName).path)
-                        val fileUri = Uri.fromFile(outFile)
-                        Wearable.getChannelClient(applicationContext)
-                            .receiveFile(channel, fileUri, false)
-                        Wearable.getChannelClient(applicationContext)
-                            .registerChannelCallback(object : ChannelCallback() {
-                                override fun onInputClosed(
-                                    channel: ChannelClient.Channel,
-                                    i: Int,
-                                    i1: Int
-                                ) {
-                                    super.onInputClosed(channel, i, i1)
-                                    Log.d(tag, "onInputClosed")
+    override fun onStart() {
+        super.onStart()
+        val intentFilter = IntentFilter(ImageMessageConstants.intentName)
+        LocalBroadcastManager.getInstance(this)
+            .registerReceiver(imageBroadcastReceiver, intentFilter)
 
-                                    runOnUiThread {
-                                        val image = BitmapFactory.decodeFile(fileUri.path)
-                                        if (image != null) {
-                                            imageView.setImageBitmap(image)
-                                        }
-                                    }
+    }
 
-                                    Wearable.getChannelClient(applicationContext).close(channel)
-                                }
-                            })
-                    }
-                }
-            })
+    override fun onStop() {
+        super.onStop()
+        LocalBroadcastManager.getInstance(this)
+            .unregisterReceiver(imageBroadcastReceiver)
     }
 
 }
