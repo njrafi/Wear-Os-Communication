@@ -17,6 +17,7 @@ import kotlinx.android.synthetic.main.activity_main.*
 class MainActivity : AppCompatActivity() {
 
     private val CameraRequestCode = 0
+    private var lastTakenPhoto: Bitmap? = null
 
     private val messageBroadcastReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
@@ -38,6 +39,10 @@ class MainActivity : AppCompatActivity() {
             val takePictureIntent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
             startActivityForResult(takePictureIntent, CameraRequestCode)
         }
+
+        binding.sendPhotoButton.setOnClickListener{
+            ImageSenderService.sendImageToWearable(lastTakenPhoto,this)
+        }
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -46,6 +51,7 @@ class MainActivity : AppCompatActivity() {
         if (requestCode == CameraRequestCode) {
             if (resultCode == RESULT_OK && data != null) {
                 val bitmapImage = data.extras?.get("data") as Bitmap?
+                lastTakenPhoto = bitmapImage
                 imageView.setImageBitmap(bitmapImage)
             }
         }
