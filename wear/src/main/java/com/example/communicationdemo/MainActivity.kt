@@ -11,16 +11,7 @@ import android.support.wearable.activity.WearableActivity
 import android.util.Log
 import androidx.databinding.DataBindingUtil
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
-import com.example.communicationdemo.databinding.ActivityMainBinding
-import com.google.android.gms.wearable.ChannelClient
-import com.google.android.gms.wearable.ChannelClient.ChannelCallback
-import com.google.android.gms.wearable.Wearable
 import kotlinx.android.synthetic.main.activity_main.*
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.launch
-import java.io.File
 
 class MainActivity : WearableActivity() {
     private val tag = "MainActivity"
@@ -41,18 +32,14 @@ class MainActivity : WearableActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        val binding: com.example.communicationdemo.databinding.ActivityMainBinding =
-            DataBindingUtil.setContentView(
-                this, R.layout.activity_main
-            )
-
+        setContentView(R.layout.activity_main)
         var dummyNumber = 0
         val messagePath = "/message_path"
 
-        binding.button.setOnClickListener {
+        button.setOnClickListener {
             Log.i("WearableMainActivity", "Send Message Button Clicked")
             dummyNumber += 1
-            binding.dummyNumberTextView.text = dummyNumber.toString()
+            dummyNumberTextView.text = dummyNumber.toString()
             MessageSender.sendMessage(messagePath, "Message from Wearable $dummyNumber", this)
         }
 
